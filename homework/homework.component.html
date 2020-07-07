@@ -1,0 +1,111 @@
+<actionbar title="Homework" hasNavigationBack="true"></actionbar>
+
+<GridLayout [visibility]="isLoading ? 'collapse' : 'visible'" rows="50, auto, *">
+    <GridLayout row="0" columns="*, *, *">
+        <Button col="0" class="btnTab" [class.btnTab-active]="tabViewSelectedIndex===0" text="TODO" (tap)="onTabViewClicked(0)"></Button>
+        <Button col="1" class="btnTab" [class.btnTab-active]="tabViewSelectedIndex===1" text="DONE" (tap)="onTabViewClicked(1)"></Button>
+        <Button col="2" class="btnTab" [class.btnTab-active]="tabViewSelectedIndex===2" text="ALL" (tap)="onTabViewClicked(2)"></Button>
+    </GridLayout>
+
+    <StackLayout row="1" class="hr-light"></StackLayout>
+
+    <GridLayout row="2" class="tabContainer" tkExampleTitle tkToggleNavButton>
+            
+        <RadListView #listView_todo class="list-group" [items]="homeworks_todo" selectionBehavior="None"
+            [visibility]="tabViewSelectedIndex === 0 ? 'visible' : 'collapsed'" 
+            (itemSwiping)="onItemSwiping($event)" 
+            (itemSwipeProgressEnded)="onSwipeCellFinished($event)"
+            (itemSwipeProgressStarted)="onSwipeCellStarted($event)" 
+            (itemSwipeProgressChanged)="onCellSwiping($event)"
+            (itemTap)="onItemTap_todo($event)"
+            (scrollEnded)="onScrollEnded_todo($event)"
+            swipeActions="true">
+            <ng-template tkListItemTemplate let-item="item">
+                <StackLayout class="listItemStackLayout">
+                    <StackLayout orientation="horizontal">
+                        <Label [text]="item.subject" class="list-group-item"></Label>
+                        <Label *ngIf="getHomeworkDeadlineStatus(item) !== 'good'" [class]="getHomeworkDeadlineStatus(item) === 'nearDueDate' ? 'icon warningIconCode' : 'icon alertIconCode'" [text]="warningIconCode" verticalAlignment="center"></Label>
+                    </StackLayout>
+                    <StackLayout class="list-group-item list-group-item-sub">
+                        <Label [text]="item.createdBy" ></Label>
+                        <Label [text]='item.dueDate | date:"fullDate"' ></Label>
+                    </StackLayout>
+                    <StackLayout class="hr-light"></StackLayout>
+                </StackLayout>
+            </ng-template>
+            <GridLayout *tkListItemSwipeTemplate columns="auto, *, auto" class="gridLayoutLayout">
+                <StackLayout id="attach-view" col="0" class="attachViewStackLayout viewStackLayout" (tap)="onLeftSwipeClick($event)">
+                    <Label text="Attach files" class="swipetemplateLabel" verticalAlignment="center" horizontalAlignment="center"></Label>
+                </StackLayout>
+                <StackLayout id="complete-view" col="2" class="completeViewStackLayout viewStackLayout" (tap)="markComplete($event)">
+                    <Label text="Complete" class="swipetemplateLabel" verticalAlignment="center" horizontalAlignment="center"></Label>
+                </StackLayout>
+            </GridLayout>
+        </RadListView>
+
+        <RadListView #listView_done class="list-group" [items]="homeworks_done" selectionBehavior="None"
+            [visibility]="tabViewSelectedIndex === 1 ? 'visible' : 'collapsed'" 
+            (itemSwiping)="onItemSwiping($event)" 
+            (itemSwipeProgressEnded)="onSwipeCellFinished($event)"
+            (itemSwipeProgressStarted)="onSwipeCellStarted($event)" 
+            (itemSwipeProgressChanged)="onCellSwiping($event)" 
+            (itemTap)="onItemTap_done($event)"
+            (scrollEnded)="onScrollEnded_done($event)"
+            swipeActions="true">
+            <ng-template tkListItemTemplate let-item="item">
+                <StackLayout class="listItemStackLayout" >
+                    <Label [text]="item.subject" class="list-group-item"></Label>
+                    <StackLayout class="list-group-item list-group-item-sub">
+                        <Label [text]="item.createdBy" ></Label>
+                        <Label [text]='item.dueDate | date:"fullDate"' ></Label>
+                    </StackLayout>
+                    <StackLayout class="hr-light"></StackLayout>
+                </StackLayout>
+            </ng-template>
+            <GridLayout *tkListItemSwipeTemplate columns="auto, *, auto" class="gridLayoutLayout">
+                <StackLayout id="attach-view" col="0" class="attachViewStackLayout viewStackLayout" (tap)="onLeftSwipeClick($event)">
+                    <Label text="Attach files" class="swipetemplateLabel" verticalAlignment="center" horizontalAlignment="center"></Label>
+                </StackLayout>
+                <StackLayout id="complete-view" col="2" class="completeViewStackLayout viewStackLayout" (tap)="markTodo($event)">
+                    <Label text="To Do" class="swipetemplateLabel" verticalAlignment="center" horizontalAlignment="center"></Label>
+                </StackLayout>
+            </GridLayout>
+        </RadListView>
+
+        <RadListView #listView_all class="list-group" [items]="homeworks" selectionBehavior="None"
+            [visibility]="tabViewSelectedIndex === 2 ? 'visible' : 'collapsed'" 
+            (itemSwiping)="onItemSwiping_all($event)" 
+            (itemSwipeProgressEnded)="onSwipeCellFinished($event)"
+            (itemSwipeProgressStarted)="onSwipeCellStarted($event)" 
+            (itemSwipeProgressChanged)="onCellSwiping($event)" 
+            (itemTap)="onItemTap_all($event)"
+            (scrollEnded)="onScrollEnded_all($event)"
+            swipeActions="true">
+            <ng-template tkListItemTemplate let-item="item">
+                <StackLayout class="listItemStackLayout">
+                    <StackLayout orientation="horizontal">
+                        <Label [text]="item.subject" class="list-group-item"></Label>
+                        <Label *ngIf="getHomeworkDeadlineStatus(item) !== 'good'" [class]="getHomeworkDeadlineStatus(item) === 'nearDueDate' ? 'icon warningIconCode' : 'icon alertIconCode'" [text]="warningIconCode" verticalAlignment="center"></Label>
+                    </StackLayout>
+                    <StackLayout class="list-group-item list-group-item-sub">
+                        <Label [text]="item.createdBy" ></Label>
+                        <Label [text]='item.dueDate | date:"fullDate"' ></Label>
+                        <Label [text]="item.status" ></Label>
+                    </StackLayout>
+                    <StackLayout class="hr-light"></StackLayout>
+                </StackLayout>
+            </ng-template>
+            
+            <GridLayout *tkListItemSwipeTemplate columns="auto, *, auto" class="gridLayoutLayout">
+                <StackLayout id="attach-view" col="0" class="attachViewStackLayout viewStackLayout" (tap)="onLeftSwipeClick($event)">
+                    <Label text="Attach files" class="swipetemplateLabel" verticalAlignment="center" horizontalAlignment="center"></Label>
+                </StackLayout>
+                <StackLayout id="complete-view" col="2" class="completeViewStackLayout viewStackLayout" (tap)="swipeText === 'Complete' ? markComplete($event) : markTodo($event)">
+                    <Label [text]="swipeText" class="swipetemplateLabel" verticalAlignment="center" horizontalAlignment="center"></Label>
+                </StackLayout>
+            </GridLayout>
+        </RadListView>
+    </GridLayout>
+
+</GridLayout>
+<ActivityIndicator [busy]="isLoading" horizontalAlignment="center"></ActivityIndicator>
